@@ -10,7 +10,7 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function LoginForm() {
+const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -161,4 +161,6 @@ export default function LoginForm() {
       </div>
     </form>
   );
-}
+};
+
+export default LoginForm;
