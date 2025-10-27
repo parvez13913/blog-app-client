@@ -10,12 +10,29 @@ import { useMutation } from "@apollo/client/react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
+
+interface SignupResponse {
+  signup: {
+    token: string;
+    userError: string | null;
+    __typename?: string;
+  };
+}
+
+interface SignupVariables {
+  name: string;
+  email: string;
+  password: string;
+}
 
 const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const [signup] = useMutation(SIGNUP_MUTATION);
+  const [signup] = useMutation<SignupResponse, SignupVariables>(
+    SIGNUP_MUTATION
+  );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,10 +44,27 @@ const RegisterForm = () => {
       .value;
 
     setIsLoading(true);
-    const response = await signup({
-      variables: { name, email, password },
-    });
-    console.log(response);
+    try {
+      const response = await signup({
+        variables: { name, email, password },
+      });
+      if (response?.data?.signup?.userError) {
+        toast.error(response?.data.signup.userError);
+        setIsLoading(false);
+        return;
+      }
+
+      if (response?.data?.signup?.token) {
+        localStorage.setItem("token", response?.data.signup.token);
+        toast.success("Account created successfully!");
+        // router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
