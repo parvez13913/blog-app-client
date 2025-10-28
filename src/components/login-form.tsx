@@ -6,19 +6,61 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SIGNIN_MUTATION } from "@/graphql/mutations/signin";
+import { useMutation } from "@apollo/client/react";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
+
+interface SiginResponse {
+  signin: {
+    token: string;
+    userError: string | null;
+    __typename?: string;
+  };
+}
+
+interface SiginVariables {
+  email: string;
+  password: string;
+}
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [signin] = useMutation<SiginResponse, SiginVariables>(SIGNIN_MUTATION);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password, rememberMe });
+    setIsLoading(true);
+    try {
+      const response = await signin({
+        variables: { email, password },
+      });
+      if (response?.data?.signin?.userError) {
+        toast.error(response?.data.signin.userError);
+        setIsLoading(false);
+        return;
+      }
+
+      if (response?.data?.signin?.token) {
+        localStorage.setItem("token", response?.data.signin.token);
+        toast.success("Account created successfully!");
+        // router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
