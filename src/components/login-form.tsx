@@ -52,11 +52,11 @@ const LoginForm = () => {
 
       if (response?.data?.signin?.token) {
         localStorage.setItem("token", response?.data.signin.token);
-        toast.success("Account created successfully!");
-        // router.push("/dashboard");
+        toast.success("Login successfully!");
+        router.push("/");
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Signup error:", error);
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);

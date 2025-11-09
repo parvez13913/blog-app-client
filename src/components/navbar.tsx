@@ -1,12 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Menu, PenSquare, X } from "lucide-react";
+import { Menu, PenSquare, User, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useAuth } from "./context/AuthContext";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -51,14 +53,25 @@ const Navbar = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/login">Sign in</Link>
-            </Button>
+            {user?.payload?.userId ? (
+              <User className="h-8 w-8 cursor-pointer p-1 bg-gray-500 rounded-full" />
+            ) : (
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/login">Sign in</Link>
+              </Button>
+            )}
             <Button size="sm" className="gap-2" asChild>
-              <Link href="/register">
-                <PenSquare className="h-4 w-4" />
-                Start Writing
-              </Link>
+              {user?.payload?.userId ? (
+                <Link href="/start-writing">
+                  <PenSquare className="h-4 w-4" />
+                  Start Writing
+                </Link>
+              ) : (
+                <Link href="/login">
+                  <PenSquare className="h-4 w-4" />
+                  Start Writing
+                </Link>
+              )}
             </Button>
           </div>
 
