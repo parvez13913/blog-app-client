@@ -1,14 +1,30 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 import { Menu, PenSquare, User, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "sonner";
 import { useAuth } from "./context/AuthContext";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    toast.error("Logged out");
+    window.location.href = "/login";
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -54,12 +70,41 @@ const Navbar = () => {
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
             {user?.payload?.userId ? (
-              <User className="h-8 w-8 cursor-pointer p-1 bg-gray-500 rounded-full" />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="h-8 w-8 p-1 bg-gray-500 rounded-full flex items-center justify-center hover:bg-gray-600 transition cursor-pointer">
+                    <User className="text-white h-6 w-6" />
+                  </button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  align="end"
+                  className="w-40 cursor-pointer"
+                >
+                  <DropdownMenuLabel>
+                    {user?.payload?.userId || "Account"}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => (window.location.href = "/profile")}
+                    className="cursor-pointer"
+                  >
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="text-red-600 cursor-pointer"
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/login">Sign in</Link>
               </Button>
             )}
+
             <Button size="sm" className="gap-2" asChild>
               {user?.payload?.userId ? (
                 <Link href="/start-writing">
@@ -121,13 +166,20 @@ const Navbar = () => {
               About
             </Link>
             <div className="pt-4 space-y-2 border-t">
-              <Button variant="ghost" size="sm" className="w-full" asChild>
-                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                  Sign in
-                </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full"
+                asChild
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Link href="/login">Sign in</Link>
               </Button>
               <Button size="sm" className="w-full gap-2" asChild>
-                <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                <Link
+                  href="/start-writing"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   <PenSquare className="h-4 w-4" />
                   Start Writing
                 </Link>
@@ -139,4 +191,5 @@ const Navbar = () => {
     </nav>
   );
 };
+
 export default Navbar;
