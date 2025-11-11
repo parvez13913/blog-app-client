@@ -1,5 +1,4 @@
-import { AuthProvider } from "@/components/context/AuthContext";
-import ApolloProviderWrapper from "@/lib/providers";
+import Providers from "@/lib/providers";
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -17,12 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ApolloProviderWrapper>
-          <AuthProvider>
-            <Toaster position="top-right" />
-            {children}
-          </AuthProvider>
-        </ApolloProviderWrapper>
+        <Providers>
+          <Toaster position="top-right" />
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -5,34 +5,16 @@ import type React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SIGNUP_MUTATION } from "@/graphql/mutations/signup";
-import { useMutation } from "@apollo/client/react";
+import { useUserRegisterMutation } from "@/redux/api/authApi";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
-
-interface SignupResponse {
-  signup: {
-    token: string;
-    userError: string | null;
-    __typename?: string;
-  };
-}
-
-interface SignupVariables {
-  name: string;
-  email: string;
-  password: string;
-}
 
 const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+
   const router = useRouter();
-  const [signup] = useMutation<SignupResponse, SignupVariables>(
-    SIGNUP_MUTATION
-  );
+  const [userRegister, { isLoading }] = useUserRegisterMutation();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,29 +24,7 @@ const RegisterForm = () => {
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement)
       .value;
-
-    setIsLoading(true);
-    try {
-      const response = await signup({
-        variables: { name, email, password },
-      });
-      if (response?.data?.signup?.userError) {
-        toast.error(response?.data.signup.userError);
-        setIsLoading(false);
-        return;
-      }
-
-      if (response?.data?.signup?.token) {
-        localStorage.setItem("token", response?.data.signup.token);
-        toast.success("Account created successfully!");
-        // router.push("/dashboard");
-      }
-    } catch (error) {
-      console.error("Signup error:", error);
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+    const bio = (form.elements.namedItem("bio") as HTMLTextAreaElement)?.value;
   };
 
   return (

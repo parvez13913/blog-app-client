@@ -1,124 +1,66 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
-import type React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SIGNIN_MUTATION } from "@/graphql/mutations/signin";
-import { useMutation } from "@apollo/client/react";
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+
+import { useUserLoginMutation } from "@/redux/api/authApi";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-
-interface SiginResponse {
-  signin: {
-    token: string;
-    userError: string | null;
-    __typename?: string;
-  };
-}
-
-interface SiginVariables {
-  email: string;
-  password: string;
-}
+import { Form } from "./ReusableComponents/Form";
+import FormInput from "./ReusableComponents/FormInput";
 
 const LoginForm = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [userLogin, { isLoading }] = useUserLoginMutation();
   const router = useRouter();
 
-  const [signin] = useMutation<SiginResponse, SiginVariables>(SIGNIN_MUTATION);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const handleSubmit = async (data: any) => {
     try {
-      const response = await signin({
-        variables: { email, password },
-      });
-      if (response?.data?.signin?.userError) {
-        toast.error(response?.data.signin.userError);
-        setIsLoading(false);
+      const result = await userLogin({
+        email: data.email,
+        password: data.password,
+      }).unwrap();
+
+      if (result?.signin?.userError) {
+        toast.error(result.signin.userError);
         return;
       }
 
-      if (response?.data?.signin?.token) {
-        localStorage.setItem("token", response?.data.signin.token);
-        toast.success("Login successfully!");
-        router.refresh();
+      if (result?.signin?.token) {
+        localStorage.setItem("token", result.signin.token);
+        toast.success("Login successful!");
         router.push("/");
+      } else {
+        toast.error("Something went wrong.");
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      toast.error("Login failed. Please try again.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Email Field */}
-      <div className="space-y-2">
-        <Label htmlFor="email" className="text-sm font-medium text-foreground">
-          Email address
-        </Label>
-        <div className="relative">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input
-            id="email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="pl-10 h-11"
-            required
-          />
-        </div>
-      </div>
+    <Form submitHandler={handleSubmit} className="space-y-5">
+      <FormInput
+        name="email"
+        type="email"
+        label="Email address"
+        placeholder="you@example.com"
+        required
+      />
 
-      {/* Password Field */}
-      <div className="space-y-2">
-        <Label
-          htmlFor="password"
-          className="text-sm font-medium text-foreground"
-        >
-          Password
-        </Label>
-        <div className="relative">
-          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="pl-10 pr-10 h-11"
-            required
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {showPassword ? (
-              <EyeOff className="size-4" />
-            ) : (
-              <Eye className="size-4" />
-            )}
-          </button>
-        </div>
-      </div>
+      <FormInput
+        name="password"
+        type="password"
+        label="Password"
+        placeholder="Enter your password"
+        required
+      />
 
-      {/* Remember Me & Forgot Password */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Checkbox
@@ -143,16 +85,16 @@ const LoginForm = () => {
         </Link>
       </div>
 
-      {/* Submit Button */}
+      {/* ✅ Submit Button */}
       <Button
         type="submit"
         className="w-full h-11 text-base cursor-pointer"
         size="lg"
       >
-        Sign in
+        {isLoading ? "Signing in..." : "Sign in"}
       </Button>
 
-      {/* Divider */}
+      {/* ✅ Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-border" />
@@ -164,7 +106,7 @@ const LoginForm = () => {
         </div>
       </div>
 
-      {/* Social Login Options */}
+      {/* ✅ Social Buttons */}
       <div className="grid grid-cols-2 gap-3">
         <Button
           variant="outline"
@@ -202,7 +144,7 @@ const LoginForm = () => {
           GitHub
         </Button>
       </div>
-    </form>
+    </Form>
   );
 };
 
