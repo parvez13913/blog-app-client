@@ -1,6 +1,5 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
 import { getErrorMessageByPropertyName } from "@/utils/schema-validator";
 import { Eye, EyeOff } from "lucide-react";
 import * as React from "react";
@@ -50,8 +49,8 @@ const FormInput: React.FC<IInputProps> = ({
           htmlFor={id || name}
           className="block text-sm font-medium text-gray-700"
         >
+          {required && <span className="text-red-500 ml-1 text-2xl">*</span>}
           {label}
-          {required && <span className="text-red-500 ml-1 text-lg">*</span>}
         </label>
       )}
 
@@ -60,13 +59,13 @@ const FormInput: React.FC<IInputProps> = ({
           control={control}
           name={name}
           render={({ field }) => (
-            <Input
+            <input
               id={id || name}
               type={inputType}
               placeholder={placeholder}
               {...field}
               value={value ?? field.value ?? ""}
-              className={`pr-10 ${className ?? ""}`}
+              className={`${className ?? ""}`}
             />
           )}
         />
@@ -79,9 +78,9 @@ const FormInput: React.FC<IInputProps> = ({
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? (
-              <EyeOff className="size-4" />
+              <EyeOff className="size-4 cursor-pointer" />
             ) : (
-              <Eye className="size-4" />
+              <Eye className="size-4 cursor-pointer" />
             )}
           </button>
         )}

@@ -53,6 +53,7 @@ const LoginForm = () => {
         label="Email address"
         placeholder="you@example.com"
         required
+        className="border border-red-300 py-2 w-full rounded-sm placeholder:text-gray-700 px-5"
       />
 
       <FormInput
@@ -61,6 +62,7 @@ const LoginForm = () => {
         label="Password"
         placeholder="Enter your password"
         required
+        className="border border-red-300 py-2 w-full rounded-sm placeholder:text-gray-700 px-5"
       />
 
       <div className="flex items-center justify-between">
