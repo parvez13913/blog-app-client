@@ -1,13 +1,21 @@
+"use client";
 import { WriteForm } from "@/components/write-form";
-
-export const metadata = {
-  title: "Start Writing",
-  description: "Create a new blog post",
-};
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function WritePage() {
+  const router = useRouter();
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <div className="flex items-start justify-end max-w-xs mt-7">
+        <button
+          onClick={() => router.back()}
+          className="p-2 rounded-full border border-gray-300 hover:bg-gray-100 transition cursor-pointer"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="h-5 w-5 text-gray-600" />
+        </button>
+      </div>
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12">

@@ -53,6 +53,7 @@ const LoginForm = () => {
       if (response?.data?.signin?.token) {
         localStorage.setItem("token", response?.data.signin.token);
         toast.success("Login successfully!");
+        router.refresh();
         router.push("/");
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

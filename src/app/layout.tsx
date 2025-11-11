@@ -19,8 +19,8 @@ export default function RootLayout({
       <body>
         <ApolloProviderWrapper>
           <AuthProvider>
-            {children}
             <Toaster position="top-right" />
+            {children}
           </AuthProvider>
         </ApolloProviderWrapper>
       </body>
